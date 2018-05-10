@@ -2,6 +2,10 @@ use grid::Cell;
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
+use grid::Location;
+
+use std::collections::{HashMap, HashSet};
+
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 enum Mark {
     #[serde(rename = " ")]
@@ -70,8 +74,51 @@ where
     pg_vec.serialize(s)
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Blob {
+    pub location: Location,
+    pub dimensions: Location,
+}
+
+impl Blob {
+    pub fn from_locations(locs: &[Location]) -> Option<Blob> {
+        let location = Location {
+            y: locs.iter().map(|l| l.y).min().unwrap_or(0),
+            x: locs.iter().map(|l| l.x).min().unwrap_or(0),
+        };
+        let far_corner = Location {
+            y: locs.iter().map(|l| l.y).max().unwrap_or(0) + 1,
+            x: locs.iter().map(|l| l.x).max().unwrap_or(0) + 1,
+        };
+        let dimensions = &far_corner - &location;
+
+        let set1: HashSet<Location> = locs.iter().cloned().collect();
+        let mut set2 = HashSet::new();
+
+        // build set2 with all the locations the rectangle should have
+        for i in 0..dimensions.y {
+            for j in 0..dimensions.x {
+                set2.insert(Location {
+                    y: location.y + i,
+                    x: location.x + j,
+                });
+            }
+        }
+
+        println!("{:?} =? {:?}", set1, set2);
+        if set1 == set2 {
+            Some(Blob {
+                location,
+                dimensions,
+            })
+        } else {
+            None
+        }
+    }
+}
+
 #[cfg(test)]
-mod tests {
+pub mod tests {
 
     use super::*;
 
@@ -83,7 +130,7 @@ mod tests {
     use grid::{Grid, Location};
     use std::collections::{HashMap, HashSet};
 
-    fn parse_strings(rows: &[&str]) -> (Grid, HashMap<char, Blob>) {
+    pub fn parse_strings(rows: &[&str]) -> (Grid, HashMap<char, Blob>) {
         use grid::location::tests::connected_components;
 
         let mut droplet_map = HashMap::new();
@@ -139,48 +186,6 @@ mod tests {
         let grid = Grid::from_function(to_cell, height, width);
 
         (grid, blob_map)
-    }
-
-    struct Blob {
-        location: Location,
-        dimensions: Location,
-    }
-
-    impl Blob {
-        fn from_locations(locs: &[Location]) -> Option<Blob> {
-            let location = Location {
-                y: locs.iter().map(|l| l.y).min().unwrap_or(0),
-                x: locs.iter().map(|l| l.x).min().unwrap_or(0),
-            };
-            let far_corner = Location {
-                y: locs.iter().map(|l| l.y).max().unwrap_or(0) + 1,
-                x: locs.iter().map(|l| l.x).max().unwrap_or(0) + 1,
-            };
-            let dimensions = &far_corner - &location;
-
-            let set1: HashSet<Location> = locs.iter().cloned().collect();
-            let mut set2 = HashSet::new();
-
-            // build set2 with all the locations the rectangle should have
-            for i in 0..dimensions.y {
-                for j in 0..dimensions.x {
-                    set2.insert(Location {
-                        y: location.y + i,
-                        x: location.x + j,
-                    });
-                }
-            }
-
-            println!("{:?} =? {:?}", set1, set2);
-            if set1 == set2 {
-                Some(Blob {
-                    location,
-                    dimensions,
-                })
-            } else {
-                None
-            }
-        }
     }
 
     #[test]
