@@ -3,16 +3,14 @@ extern crate pathfinding;
 use pathfinding::kuhn_munkres::*;
 use pathfinding::matrix::*;
 
-use std::num;
-
 use grid::parse::Blob;
 use super::{Droplet, DropletId};
 
 use std::collections::{HashMap};
 
 pub fn match_views(
-    mut exec_view: HashMap<DropletId, Droplet>,
-    mut chip_view: Vec<Blob>,
+    exec_view: HashMap<DropletId, Droplet>,
+    chip_view: Vec<Blob>,
 ) -> HashMap<DropletId, Blob> {
     let mut hm = HashMap::new();
     let mut ids = vec![];
@@ -41,18 +39,6 @@ pub fn get_similarity(blob: &Blob, droplet: &Droplet) -> i32 {
 pub mod tests {
     use super::*;
     use super::super::parse;
-
-    #[test]
-    fn km_test() {
-        // let m: Matrix<i32> = Matrix::new(12, 12, 1);
-        let test_vec = vec![1,0,0,
-                            0,0,1,
-                            0,1,0];
-
-        // number of rows must be >= number of columns
-        let m: Matrix<i32> = Matrix::from_vec(3, 3, test_vec);
-        let (c, result) = kuhn_munkres(&m);
-    }
 
     fn blob_map_to_droplet_map(blobs: HashMap<char, Blob>) -> (HashMap<DropletId, Droplet>, Vec<char>) {
         let mut droplet_vec: HashMap<DropletId, Droplet> = HashMap::new();
