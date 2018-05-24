@@ -74,11 +74,29 @@ where
     pg_vec.serialize(s)
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 pub struct Blob {
     pub location: Location,
     pub dimensions: Location,
+    // TODO: why eq? consider implementing
+    // Otherwise FNV Hashing
+    pub volume: f64,
 }
+
+impl PartialEq for Blob {
+    fn eq(&self, other: &Blob) -> bool {
+        self.location == other.location
+        && self.dimensions == other.dimensions
+        && float_epsilon_equal(self.volume, other.volume)
+    }
+}
+
+pub fn float_epsilon_equal(float1: f64, float2: f64) -> bool {
+    let epsilon = 0.00001f64;
+    (float1 - float2).abs() < epsilon
+}
+
+// impl Eq for Blob {}
 
 impl Blob {
     pub fn from_locations(locs: &[Location]) -> Option<Blob> {
@@ -105,11 +123,14 @@ impl Blob {
             }
         }
 
-        println!("{:?} =? {:?}", set1, set2);
+        // using dimensions as volume for now
+        let volume:f64 = (dimensions.x * dimensions.y).into();
+
         if set1 == set2 {
             Some(Blob {
                 location,
                 dimensions,
+                volume,
             })
         } else {
             None
