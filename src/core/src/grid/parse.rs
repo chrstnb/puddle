@@ -4,7 +4,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use grid::Location;
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashSet};
 
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 enum Mark {

@@ -12,6 +12,9 @@ pub fn match_views(
     exec_view: HashMap<DropletId, Droplet>,
     chip_view: Vec<Blob>,
 ) -> HashMap<DropletId, Blob> {
+    if exec_view.len() != chip_view.len() {
+        panic!("Expected and actual droplets are of different lengths");
+    }
     let mut hm = HashMap::new();
     let mut ids = vec![];
     let mut matches = vec![];
@@ -22,7 +25,7 @@ pub fn match_views(
         }
     }
     let m: Matrix<i32> = Matrix::from_vec(ids.len(), ids.len(), matches);
-    let (c, result) = kuhn_munkres_min(&m);
+    let (_c, result) = kuhn_munkres_min(&m);
     for i in 0..result.len() {
         hm.insert(*ids[i], chip_view[result[i]].clone());
     }
@@ -135,6 +138,8 @@ pub mod tests {
         }
     }
 
+    #[test]
+    #[should_panic(expected = "Expected and actual droplets are of different lengths")]
     fn test_mix_split_diff() {
         let exec_strs = vec!["aa...........",
                              ".....bb..c...",
@@ -148,14 +153,6 @@ pub mod tests {
 
         let (exec_view, char_to_id) = blob_map_to_droplet_map(exec_blobs);
 
-        let mut expected: HashMap<DropletId, Blob> = HashMap::new();
-        for id in exec_view.keys() {
-            expected.insert(*id, chip_blobs[&char_to_id[id.id]].clone());
-        }
-
-        let result: HashMap<DropletId, Blob> = super::match_views(exec_view, chip_blobs.into_iter().map(|(_, blob)| blob).collect());
-        for id in expected.keys() {
-            assert_eq!(result.get(id), expected.get(id));
-        }
+        let _result: HashMap<DropletId, Blob> = super::match_views(exec_view, chip_blobs.into_iter().map(|(_, blob)| blob).collect());
     }
 }
