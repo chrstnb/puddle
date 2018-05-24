@@ -24,9 +24,7 @@ pub fn match_views(
         }
     }
     let m: Matrix<i32> = Matrix::from_vec(ids.len(), ids.len(), matches);
-    println!("Matrix: {:?}", m);
     let (c, result) = kuhn_munkres_min(&m);
-    println!("Result: {:?}", result);
     for i in 0..result.len() {
         hm.insert(*ids[i], chip_view[result[i]].clone());
     }
@@ -35,7 +33,8 @@ pub fn match_views(
 
 pub fn get_similarity(blob: &Blob, droplet: &Droplet) -> i32 {
     blob.location.distance_to(&droplet.location) as i32
-    + blob.location.distance_to(&droplet.location) as i32
+    + blob.dimensions.distance_to(&droplet.dimensions) as i32
+    + ((blob.volume - droplet.volume) as i32).abs()
 }
 
 #[cfg(test)]
