@@ -153,6 +153,6 @@ pub mod tests {
 
         let (exec_view, char_to_id) = blob_map_to_droplet_map(exec_blobs);
 
-        let _result: HashMap<DropletId, Blob> = super::match_views(exec_view, chip_blobs.into_iter().map(|(_, blob)| blob).collect());
+        let result: HashMap<DropletId, Blob> = super::match_views(exec_view, chip_blobs.into_iter().map(|(_, blob)| blob).collect());
     }
 }

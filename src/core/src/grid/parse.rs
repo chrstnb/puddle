@@ -4,7 +4,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use grid::Location;
 
-use std::collections::{HashSet};
+use std::collections::HashSet;
 
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 enum Mark {
@@ -85,9 +85,8 @@ pub struct Blob {
 
 impl PartialEq for Blob {
     fn eq(&self, other: &Blob) -> bool {
-        self.location == other.location
-        && self.dimensions == other.dimensions
-        && float_epsilon_equal(self.volume, other.volume)
+        self.location == other.location && self.dimensions == other.dimensions
+            && float_epsilon_equal(self.volume, other.volume)
     }
 }
 
@@ -124,7 +123,7 @@ impl Blob {
         }
 
         // using dimensions as volume for now
-        let volume:f64 = (dimensions.x * dimensions.y).into();
+        let volume: f64 = (dimensions.x * dimensions.y).into();
 
         if set1 == set2 {
             Some(Blob {

@@ -34,6 +34,6 @@ mod plan;
 mod process;
 mod util;
 
+pub use grid::parse;
 pub use grid::{DropletId, DropletInfo, Grid, Location};
 pub use process::*;
-pub use grid::parse;
