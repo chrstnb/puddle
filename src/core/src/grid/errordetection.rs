@@ -17,6 +17,7 @@ use std::collections::HashMap;
  * Can currently only handle where both views contain
  * the same number of 'droplets'
  */
+ #[allow(dead_code)]
 pub fn match_views(
     exec_view: HashMap<DropletId, Droplet>,
     chip_view: Vec<Blob>,
