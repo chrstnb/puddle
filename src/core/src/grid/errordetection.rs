@@ -3,10 +3,10 @@ extern crate pathfinding;
 use pathfinding::kuhn_munkres::*;
 use pathfinding::matrix::*;
 
-use grid::parse::Blob;
 use super::{Droplet, DropletId};
+use grid::parse::Blob;
 
-use std::collections::{HashMap};
+use std::collections::HashMap;
 
 pub fn match_views(
     exec_view: HashMap<DropletId, Droplet>,
@@ -34,32 +34,36 @@ pub fn match_views(
 
 pub fn get_similarity(blob: &Blob, droplet: &Droplet) -> i32 {
     blob.location.distance_to(&droplet.location) as i32
-    + blob.dimensions.distance_to(&droplet.dimensions) as i32
-    + ((blob.volume - droplet.volume) as i32).abs()
+        + blob.dimensions.distance_to(&droplet.dimensions) as i32
+        + ((blob.volume - droplet.volume) as i32).abs()
 }
 
 #[cfg(test)]
 pub mod tests {
-    use super::*;
     use super::super::parse;
+    use super::*;
 
-    fn blob_map_to_droplet_map(blobs: HashMap<char, Blob>) -> (HashMap<DropletId, Droplet>, Vec<char>) {
+    fn blob_map_to_droplet_map(
+        blobs: HashMap<char, Blob>,
+    ) -> (HashMap<DropletId, Droplet>, Vec<char>) {
         let mut droplet_vec: HashMap<DropletId, Droplet> = HashMap::new();
         let mut char_to_id: Vec<char> = vec![];
 
         for c in blobs.keys() {
-            let droplet_id =
-                DropletId {
-                    id: char_to_id.len(),
-                    process_id: 0,
+            let droplet_id = DropletId {
+                id: char_to_id.len(),
+                process_id: 0,
             };
             println!("{:?}", droplet_id);
-            droplet_vec.insert(droplet_id, Droplet::new(
+            droplet_vec.insert(
                 droplet_id,
-                1.0,
-                blobs.get(c).unwrap().location,
-                blobs.get(c).unwrap().dimensions,
-            ));
+                Droplet::new(
+                    droplet_id,
+                    1.0,
+                    blobs.get(c).unwrap().location,
+                    blobs.get(c).unwrap().dimensions,
+                ),
+            );
             char_to_id.push(c.clone());
         }
         (droplet_vec, char_to_id)
@@ -67,9 +71,7 @@ pub mod tests {
 
     #[test]
     fn test_no_diff() {
-        let strs = vec!["aa..........c",
-                        ".....bb......",
-                        "............."];
+        let strs = vec!["aa..........c", ".....bb......", "............."];
 
         let (_, exec_blobs) = parse::tests::parse_strings(&strs);
         let (_, chip_blobs) = parse::tests::parse_strings(&strs);
@@ -81,7 +83,10 @@ pub mod tests {
             expected.insert(*id, chip_blobs[&char_to_id[id.id]].clone());
         }
 
-        let result: HashMap<DropletId, Blob> = super::match_views(exec_view, chip_blobs.into_iter().map(|(_, blob)| blob).collect());
+        let result: HashMap<DropletId, Blob> = super::match_views(
+            exec_view,
+            chip_blobs.into_iter().map(|(_, blob)| blob).collect(),
+        );
         for id in expected.keys() {
             assert_eq!(result.get(id), expected.get(id));
         }
@@ -89,13 +94,9 @@ pub mod tests {
 
     #[test]
     fn test_location_diff() {
-        let exec_strs = vec!["aa..........c",
-                             ".....bb......",
-                             "............."];
+        let exec_strs = vec!["aa..........c", ".....bb......", "............."];
 
-        let chip_strs = vec!["aa...........",
-                             "............c",
-                             ".....bb......"];
+        let chip_strs = vec!["aa...........", "............c", ".....bb......"];
 
         let (_, exec_blobs) = parse::tests::parse_strings(&exec_strs);
         let (_, chip_blobs) = parse::tests::parse_strings(&chip_strs);
@@ -107,7 +108,10 @@ pub mod tests {
             expected.insert(*id, chip_blobs[&char_to_id[id.id]].clone());
         }
 
-        let result: HashMap<DropletId, Blob> = super::match_views(exec_view, chip_blobs.into_iter().map(|(_, blob)| blob).collect());
+        let result: HashMap<DropletId, Blob> = super::match_views(
+            exec_view,
+            chip_blobs.into_iter().map(|(_, blob)| blob).collect(),
+        );
         for id in expected.keys() {
             assert_eq!(result.get(id), expected.get(id));
         }
@@ -115,12 +119,8 @@ pub mod tests {
 
     #[test]
     fn test_dimension_diff() {
-        let exec_strs = vec!["aa..........c",
-                             ".....bb......",
-                             "............."];
-        let chip_strs = vec!["aa.........cc",
-                             ".....b.......",
-                             ".....b......."];
+        let exec_strs = vec!["aa..........c", ".....bb......", "............."];
+        let chip_strs = vec!["aa.........cc", ".....b.......", ".....b......."];
 
         let (_, exec_blobs) = parse::tests::parse_strings(&exec_strs);
         let (_, chip_blobs) = parse::tests::parse_strings(&chip_strs);
@@ -132,7 +132,10 @@ pub mod tests {
             expected.insert(*id, chip_blobs[&char_to_id[id.id]].clone());
         }
 
-        let result: HashMap<DropletId, Blob> = super::match_views(exec_view, chip_blobs.into_iter().map(|(_, blob)| blob).collect());
+        let result: HashMap<DropletId, Blob> = super::match_views(
+            exec_view,
+            chip_blobs.into_iter().map(|(_, blob)| blob).collect(),
+        );
         for id in expected.keys() {
             assert_eq!(result.get(id), expected.get(id));
         }
@@ -141,18 +144,17 @@ pub mod tests {
     #[test]
     #[should_panic(expected = "Expected and actual droplets are of different lengths")]
     fn test_mix_split_diff() {
-        let exec_strs = vec!["aa...........",
-                             ".....bb..c...",
-                             "............."];
-        let chip_strs = vec!["aa...........",
-                             ".....bbb.....",
-                             "............."];
+        let exec_strs = vec!["aa...........", ".....bb..c...", "............."];
+        let chip_strs = vec!["aa...........", ".....bbb.....", "............."];
 
         let (_, exec_blobs) = parse::tests::parse_strings(&exec_strs);
         let (_, chip_blobs) = parse::tests::parse_strings(&chip_strs);
 
         let (exec_view, char_to_id) = blob_map_to_droplet_map(exec_blobs);
 
-        let result: HashMap<DropletId, Blob> = super::match_views(exec_view, chip_blobs.into_iter().map(|(_, blob)| blob).collect());
+        let result: HashMap<DropletId, Blob> = super::match_views(
+            exec_view,
+            chip_blobs.into_iter().map(|(_, blob)| blob).collect(),
+        );
     }
 }
